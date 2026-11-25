@@ -1,0 +1,222 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>shiked6 music store — Instruments &amp; Music Sheets</title>
+  <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/glassmorphism.css' %}">
+</head>
+<body>
+  <!-- Ambient Glassmorphism Background Orbs -->
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
+  <div class="bg-orb orb-3" aria-hidden="true"></div>
+
+  <!-- Top Navigation -->
+  <header class="glass-nav">
+    <div class="container nav-inner">
+      <a href="/" class="brand">
+        <img src="{% static 'images/logo.png' %}" alt="shiked6 music store logo" class="brand-logo">
+        <div class="brand-text">
+          <span class="brand-name">shiked6 music store</span>
+          <span class="brand-tag">Music • Instruments &amp; Sheets</span>
+        </div>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#catalog" class="nav-link">Catalog</a>
+        <a href="/api/products/" target="_blank" rel="noopener" class="nav-link nav-api">DRF API</a>
+        <a href="/admin/" target="_blank" rel="noopener" class="nav-link">Admin</a>
+        {% if user.is_staff %}
+        <button id="open-add-modal-btn" class="btn btn-glass btn-sm" type="button">+ Add Product</button>
+        {% endif %}
+        <button id="cart-toggle-btn" class="btn btn-cyan btn-sm" type="button">
+          Cart <span id="cart-count" class="badge-count">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero glass-panel">
+      <div class="hero-content">
+        <div class="hero-pill">Django REST Framework • Glassmorphism Edition</div>
+        <h1>Popular Instruments &amp; Curated Music Sheets</h1>
+        <p>
+          Welcome to <strong>shiked6 music store</strong>. Explore stage-ready guitars, digital pianos,
+          studio gear, and conservatory-grade sheet music—powered live by a full-CRUD Django REST API.
+        </p>
+        <div class="hero-actions">
+          <a href="#catalog" class="btn btn-cyan">Explore Catalog</a>
+          <a href="/api/products/" target="_blank" rel="noopener" class="btn btn-glass">Open Browsable API (/api/products/)</a>
+        </div>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-card glass-sub">
+          <span class="stat-value" id="stat-total">{{ total_products }}</span>
+          <span class="stat-label">Total Products</span>
+        </div>
+        <div class="stat-card glass-sub">
+          <span class="stat-value" id="stat-instruments">{{ instrument_count }}</span>
+          <span class="stat-label">Instruments</span>
+        </div>
+        <div class="stat-card glass-sub">
+          <span class="stat-value" id="stat-sheets">{{ sheet_count }}</span>
+          <span class="stat-label">Music Sheets</span>
+        </div>
+        <div class="stat-card glass-sub">
+          <span class="stat-value">CRUD</span>
+          <span class="stat-label">REST API Ready</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter & Search Controls -->
+    <section id="catalog" class="controls-panel glass-panel">
+      <div class="category-tabs" role="tablist" aria-label="Product categories">
+        <button class="tab-btn active" data-category="" type="button">All Products</button>
+        <button class="tab-btn" data-category="instruments" type="button">Popular Instruments</button>
+        <button class="tab-btn" data-category="music_sheets" type="button">Music Sheets</button>
+      </div>
+
+      <div class="filter-inputs">
+        <div class="input-wrap">
+          <input id="search-input" type="search" placeholder="Search instruments, brands, composers..." aria-label="Search products">
+        </div>
+        <select id="subcategory-select" aria-label="Filter by subcategory">
+          <option value="">All Subcategories</option>
+          <option value="guitars">Guitars &amp; Basses</option>
+          <option value="keyboards">Keyboards &amp; Pianos</option>
+          <option value="drums">Drums &amp; Percussion</option>
+          <option value="wind">Wind &amp; Brass</option>
+          <option value="strings">Orchestral Strings</option>
+          <option value="accessories">Studio &amp; Accessories</option>
+          <option value="piano_sheets">Piano Sheet Music</option>
+          <option value="guitar_tabs">Guitar Tabs &amp; Chords</option>
+          <option value="vocal_scores">Vocal &amp; Band Scores</option>
+        </select>
+        <select id="ordering-select" aria-label="Sort products">
+          <option value="">Sort: Featured</option>
+          <option value="price">Price: Low to High</option>
+          <option value="-price">Price: High to Low</option>
+          <option value="name">Name: A to Z</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- API Status Strip -->
+    <div class="api-strip">
+      <span id="results-summary">Loading products from <code>/api/products/</code>...</span>
+      <a id="live-api-link" href="/api/products/" target="_blank" rel="noopener">View JSON / Browsable API →</a>
+    </div>
+
+    <!-- Product Grid -->
+    <section id="product-grid" class="product-grid" aria-live="polite"></section>
+  </main>
+
+  <footer class="glass-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="{% static 'images/logo.png' %}" alt="shiked6 logo" class="footer-logo">
+        <span><strong>shiked6 music store</strong> • E-Commerce Category: Music</span>
+      </div>
+      <div class="footer-links">
+        <a href="/api/" target="_blank" rel="noopener">API Root</a>
+        <a href="/api/products/" target="_blank" rel="noopener">Products Endpoint</a>
+        <a href="/admin/" target="_blank" rel="noopener">Django Admin</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Quick View Modal -->
+  <div id="product-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card glass-panel">
+      <button class="modal-close" id="close-product-modal" type="button" aria-label="Close modal">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Add Product Modal (Live DRF POST) -->
+  <div id="add-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="add-modal-title">
+    <div class="modal-card glass-panel">
+      <button class="modal-close" id="close-add-modal" type="button" aria-label="Close modal">&times;</button>
+      <h2 id="add-modal-title">Add New Product via DRF API</h2>
+      <p class="modal-subtitle">Submits a live <code>POST /api/products/</code> request to Django REST Framework.</p>
+      <form id="add-product-form" class="glass-form">
+        <div class="form-row">
+          <label>Product Name
+            <input type="text" name="name" required placeholder="e.g. Yamaha C40 Classical Guitar">
+          </label>
+          <label>Brand or Composer
+            <input type="text" name="brand_or_composer" required placeholder="e.g. Yamaha">
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Category
+            <select name="category" required>
+              <option value="instruments">Popular Instruments</option>
+              <option value="music_sheets">Music Sheets</option>
+            </select>
+          </label>
+          <label>Subcategory
+            <select name="subcategory" required>
+              <option value="guitars">Guitars &amp; Basses</option>
+              <option value="keyboards">Keyboards &amp; Pianos</option>
+              <option value="drums">Drums &amp; Percussion</option>
+              <option value="wind">Wind &amp; Brass</option>
+              <option value="strings">Orchestral Strings</option>
+              <option value="accessories">Studio &amp; Accessories</option>
+              <option value="piano_sheets">Piano Sheet Music</option>
+              <option value="guitar_tabs">Guitar Tabs &amp; Chords</option>
+              <option value="vocal_scores">Vocal &amp; Band Scores</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Price (PHP ₱)
+            <input type="number" name="price" step="0.01" min="1" required placeholder="8500.00">
+          </label>
+          <label>Stock
+            <input type="number" name="stock" min="0" value="10" required>
+          </label>
+        </div>
+        <label>Skill Level
+          <input type="text" name="skill_level" value="All Levels" placeholder="Beginner, Intermediate, Pro">
+        </label>
+        <label>Description
+          <textarea name="description" rows="3" required placeholder="Brief description of the instrument or music sheet..."></textarea>
+        </label>
+        <div id="add-form-status" class="form-status"></div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-cyan">Create Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Slide-over Cart Drawer -->
+  <aside id="cart-drawer" class="cart-drawer glass-panel hidden" aria-label="Shopping cart">
+    <div class="cart-header">
+      <h2>Your Cart</h2>
+      <button id="close-cart-btn" class="modal-close" type="button" aria-label="Close cart">&times;</button>
+    </div>
+    <div id="cart-items" class="cart-items"></div>
+    <div class="cart-footer">
+      <div class="cart-total-row">
+        <span>Total</span>
+        <strong id="cart-total">₱0.00</strong>
+      </div>
+      <button id="checkout-btn" class="btn btn-cyan btn-block" type="button">Checkout Demo</button>
+    </div>
+  </aside>
+
+  <script src="{% static 'js/store.js' %}"></script>
+</body>
+</html>
